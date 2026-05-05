@@ -1,3 +1,6 @@
+// Copyright (c) 2026 naxemis. All rights reserved.
+// Contact: contact@naxemis.dev
+
 package com.roulettepaymenttracker.client;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;

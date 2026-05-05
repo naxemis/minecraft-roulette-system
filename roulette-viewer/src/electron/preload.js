@@ -1,4 +1,7 @@
-﻿const { contextBridge, ipcRenderer } = require('electron');
+﻿// Copyright (c) 2026 naxemis. All rights reserved.
+// Contact: contact@naxemis.dev
+
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
     drawTheWinner: () => ipcRenderer.invoke('draw-the-winner'),

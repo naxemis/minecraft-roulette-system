@@ -1,4 +1,7 @@
-﻿import { app, BrowserWindow, ipcMain } from 'electron';
+﻿// Copyright (c) 2026 naxemis. All rights reserved.
+// Contact: contact@naxemis.dev
+
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import * as fileSystem from "node:fs";
 
