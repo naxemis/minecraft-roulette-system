@@ -39,6 +39,9 @@ out/
 *.ipr
 *.iws
 
+#VS Code
+.vscode/
+
 # Run #
 run/*
 !run/options.txt
