@@ -1,0 +1,21 @@
+// Copyright (c) 2026 naxemis. All rights reserved.
+// Contact: contact@naxemis.dev
+
+package dev.naxemis.roulettepaymenthandler.client.utility;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.sound.SoundEvent;
+
+public class PlaySoundEffect {
+    MinecraftClient minecraftClient = MinecraftClient.getInstance();
+
+    public void playSound(SoundEvent soundEvent) {
+        if (minecraftClient.player != null) {
+            SoundInstance soundInstance = PositionedSoundInstance.master(soundEvent, 1.0f, 0.5f);
+
+            minecraftClient.getSoundManager().play(soundInstance);
+        }
+    }
+}

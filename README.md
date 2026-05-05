@@ -8,7 +8,8 @@
 ## TODO
 - [ ] Rename repository commits (use the same naming standard as in multiplayer-fps)
 - [x] Change project license from Creative Commons to All rights reserved
-- [ ] Reorganize Elecrton app and Minecraft mod project structure
+- [x] Reorganize Minecraft mod project structure
+- [ ] Reorganize Elecrton app project structure
 - [ ] Switch from React to Vue in Electron app
 - [ ] Use TypeScript instead of JavaScript in Electron app
 - [ ] Improve readibility and maintainability of minecraft mod and desktop app codebase
