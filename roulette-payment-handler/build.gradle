@@ -19,12 +19,6 @@ loom {
             sourceSet sourceSets.client
         }
     }
-
-    runs {
-        client {
-            vmArgs.add("-Djava.net.preferIPv4Stack=true")
-        }
-    }
 }
 
 fabricApi {

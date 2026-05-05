@@ -12,10 +12,11 @@ public class PlaySoundEffect {
     MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
     public void playSound(SoundEvent soundEvent) {
-        if (minecraftClient.player != null) {
-            SoundInstance soundInstance = PositionedSoundInstance.master(soundEvent, 1.0f, 0.5f);
-
-            minecraftClient.getSoundManager().play(soundInstance);
+        if (minecraftClient.player == null) {
+            return; 
         }
+
+        SoundInstance soundInstance = PositionedSoundInstance.master(soundEvent, 1.0f, 0.5f);
+        minecraftClient.getSoundManager().play(soundInstance);
     }
 }

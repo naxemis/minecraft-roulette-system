@@ -78,8 +78,8 @@ public class RoulettePaymentHandlerClient implements ClientModInitializer {
 
     public void onClientShutdown() {
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-            paymentDataManager.async_process_shutdown();
-            winnerDataManager.async_process_shutdown();
+            paymentDataManager.asyncProcessShutdown();
+            winnerDataManager.asyncProcessShutdown();
             rouletteStatusCommands.reset_roulette_status();
         });
     }

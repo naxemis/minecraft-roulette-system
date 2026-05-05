@@ -5,7 +5,7 @@ package dev.naxemis.roulettepaymenthandler.client.managers;
 
 import com.google.gson.reflect.TypeToken;
 
-import dev.naxemis.roulettepaymenthandler.client.data.PlayerDataHolder;
+import dev.naxemis.roulettepaymenthandler.client.models.PlayerDataHolder;
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
 
@@ -126,7 +126,7 @@ public class PaymentDataManager {
         }, executorService); // makes the method use dedicated thread pool for execution
     }
 
-    public void async_process_shutdown() {
+    public void asyncProcessShutdown() {
         executorService.shutdown(); // closes the database connection thread
         System.out.println("Closing Payment Data Manager thread.");
     }

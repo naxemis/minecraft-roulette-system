@@ -3,6 +3,8 @@
 
 package dev.naxemis.roulettepaymenthandler.client.core;
 
+import java.util.concurrent.CompletableFuture;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -19,24 +21,32 @@ public class PaymentConfirmation {
 
     private static final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
-    public static void confirm() {
-        new Thread(() -> {
-            long endTime = System.currentTimeMillis() + 5000;
-            while (System.currentTimeMillis() < endTime) {
-                minecraftClient.execute(() -> {
-                    if (tryConfirmOnce()) {
-                        Thread.currentThread().interrupt();
-                    }
-                });
+    public static CompletableFuture<Boolean> confirm() {
+    CompletableFuture<Boolean> result = new CompletableFuture<>();
 
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException exception) {
-                    System.out.println("Something went wrong during payment confirmation: " + exception.getMessage());
+    new Thread(() -> {
+        long endTime = System.currentTimeMillis() + 5000;
+
+        while (System.currentTimeMillis() < endTime && !result.isDone()) {
+            minecraftClient.execute(() -> {
+                if (tryConfirmOnce()) {
+                    result.complete(true);
                 }
+            });
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                break;
             }
-        }).start();
-    }
+        }
+
+        result.complete(false);
+    }).start();
+
+    return result;
+}
 
     private static boolean tryConfirmOnce() {
         if (!(minecraftClient.currentScreen instanceof HandledScreen<?> screen)) {
