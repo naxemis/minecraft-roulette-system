@@ -11,7 +11,6 @@ import dev.naxemis.roulettepaymenthandler.client.commands.RouletteStatusCommands
 import dev.naxemis.roulettepaymenthandler.client.commands.SendMessageCommands;
 import dev.naxemis.roulettepaymenthandler.client.managers.PaymentDataManager;
 import dev.naxemis.roulettepaymenthandler.client.managers.WinnerDataManager;
-import dev.naxemis.roulettepaymenthandler.client.models.PaymentDataHolder;
 import dev.naxemis.roulettepaymenthandler.client.core.PaymentCollector;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -65,10 +64,9 @@ public class RoulettePaymentHandlerClient implements ClientModInitializer {
 
         paymentDataManager.createEmptyDataFile();
 
-        paymentCollector.registerListener((paymentUsername, paymentAmount) -> {
-            PaymentDataHolder newPaymentData = new PaymentDataHolder(paymentUsername, paymentAmount);
-            paymentDataManager.saveData(newPaymentData).exceptionally(expection -> { // saves data to JSON file
-                System.out.println("Something went wrong when trying to run saving data to JSON file async operation: " + expection.getMessage()); // shows error if async operation failed
+        paymentCollector.registerListener(newPaymentData -> {
+            paymentDataManager.saveData(newPaymentData).exceptionally(exception -> {
+                System.out.println("Something went wrong when trying to run saving data to JSON file async operation: " + exception.getMessage());
                 return null;
             });
         });

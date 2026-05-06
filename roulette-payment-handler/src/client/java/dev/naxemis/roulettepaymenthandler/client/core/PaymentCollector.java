@@ -11,9 +11,10 @@ import net.minecraft.text.Text;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import dev.naxemis.roulettepaymenthandler.client.commands.PaymentCollectorCommands;
+import dev.naxemis.roulettepaymenthandler.client.models.PaymentDataHolder;
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
 
@@ -22,12 +23,8 @@ public class PaymentCollector {
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
     private static final PaymentCollectorCommands paymentCollectorCommands = new PaymentCollectorCommands();
 
-    public String paymentUsername; // name of the user that sent the payment
-    public long paymentAmount; // amount that user sent in payment
-
     private long parseAmount(String rawAmount) {
         rawAmount = rawAmount.replaceAll("[$]", "");
-
         if (rawAmount.matches("(?i).*(k)$")) {
             double value = Double.parseDouble(rawAmount.replaceAll("(?i)(k)$", ""));
             return (long) (value * 1000);
@@ -42,8 +39,7 @@ public class PaymentCollector {
         }
     }
 
-    // TODO: User PaymentDataHolder instead of paymentUsername and paymentAmount
-    public void registerListener(BiConsumer<String, Long> onPaymentReceived) {
+    public void registerListener(Consumer<PaymentDataHolder> onPaymentReceived) {
         ClientReceiveMessageEvents.GAME.register((text, overlay) -> {
             List<Text> paymentComponents = new ArrayList<>();
             collectAllTextComponents(text, paymentComponents); // collects all components
@@ -64,20 +60,14 @@ public class PaymentCollector {
                 long messageAmount = parseAmount(componentArray[paymentCollectorCommands.getPositionOfAmount()]);
                 int messageSize = componentArray.length;
 
-                for (int index = 0; index < messageSize; index++) {
-                    System.out.println("Cwel " + index + ": " + componentArray[index]);
-                }
-
                 // checks if the first word specified by player and first word, that have position specified by player, the same
                 boolean isFirstWordMatching = messageSpecifiedWord.equals(paymentCollectorCommands.getSpecifiedComponentWord());
                 boolean isSizeEqual = messageSize == paymentCollectorCommands.getPaymentMessageComponentSize();
 
                 if(isFirstWordMatching && isSizeEqual) {
                     try {
-                        this.paymentAmount = messageAmount;
-                        this.paymentUsername = messageUsername;
-
-                        onPaymentReceived.accept(paymentUsername, paymentAmount);  // notify the callback
+                        PaymentDataHolder newPaymentData = new PaymentDataHolder(messageUsername, messageAmount);
+                        onPaymentReceived.accept(newPaymentData);  // notify the callback
                     } catch (Exception exception) {
                         System.out.println("Failed to retrieve payment price and username: " + exception.getMessage());
                         actionBarNotification.sendMessage("Failed to retrieve payment price and username", "§4");
@@ -85,8 +75,7 @@ public class PaymentCollector {
                     }
                 }
             } catch (Exception exception) {
-                // System.out.println("Message failed to pass pre-check.");
-                // ingore
+                // Ignore - it will spam the console too much
             }
         });
     }
