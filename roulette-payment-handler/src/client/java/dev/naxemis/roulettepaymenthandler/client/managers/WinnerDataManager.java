@@ -8,18 +8,15 @@ import com.google.gson.Gson;
 import dev.naxemis.roulettepaymenthandler.client.core.PaymentConfirmation;
 import dev.naxemis.roulettepaymenthandler.client.addon.SendMessageAfterDraw;
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
+import dev.naxemis.roulettepaymenthandler.client.utility.FileLoader;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
 import dev.naxemis.roulettepaymenthandler.client.models.WinnerDataHolder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundEvents;
 
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,54 +25,19 @@ public class WinnerDataManager {
 
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
+    private static final FileLoader fileLoader = new FileLoader();
 
     private static WinnerDataHolder winnerData = new WinnerDataHolder("", 0);
 
     // TODO (SYSTEM): System.getenv("APPDATA") = null for Linux/Mac => "null/RoulettePaymentTracker/..."
-    private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/winnerData.json";
-    private static final Path winnerDataFilePath = Paths.get(filePath);
+    private static final String winnderDataFilePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/winnerData.json";
 
     private static final Gson gson = new Gson();
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    // TODO (DATA): Move this method into DataLoader class. Make it reusable for different values.
-    private boolean checkForDataDirectory() {
-        try {
-            if (!Files.exists(winnerDataFilePath.getParent())) {
-                System.out.println("Creating directories for winnerData.json.");
-                Files.createDirectories(winnerDataFilePath.getParent());
-            }
-            return true;
-        } catch (IOException exception) {
-            System.out.println("Failed to create directories for winnerData.json: " + exception.getMessage());
-            return false;
-        }
-    }
-
-    // TODO (DATA): Move this method into DataLoader class. Make it reusable for different values.
-    private boolean checkForDataJson() {
-        try {
-            if (!Files.exists(winnerDataFilePath) || Files.size(winnerDataFilePath) == 0) {
-                System.out.println("winnerData.json missing or empty, creating default.");
-
-                WinnerDataHolder defaultData = new WinnerDataHolder("", 0);
-                try (FileWriter writer = new FileWriter(winnerDataFilePath.toFile())) {
-                    gson.toJson(defaultData, writer);
-                    System.out.println("Created an empty winnerData.json file.");
-                }
-            }
-            return true;
-        } catch (IOException exception) {
-            System.out.println("Failed to create empty winnerData.json file: " + exception.getMessage());
-            actionBarNotification.sendMessage("Failed to create winnerData.json.", "§4");
-            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-            return false;
-        }
-    }
-
     private WinnerDataHolder readWinnerData() {
-    try (Reader reader = new FileReader(filePath)) {
+    try (Reader reader = new FileReader(winnderDataFilePath)) {
         return gson.fromJson(reader, WinnerDataHolder.class);
     } catch (IOException exception) {
         System.out.println("Failed to read winnerData.json: " + exception.getMessage());
@@ -127,8 +89,8 @@ public class WinnerDataManager {
 
     public CompletableFuture<Void> updateWinnerData() {
         return CompletableFuture.runAsync(() -> {
-            if (!checkForDataDirectory()) return;
-            if (!checkForDataJson()) return;
+            if (!fileLoader.checkForDataDirectory(winnderDataFilePath)) return;
+            if (!fileLoader.checkForDataJson(winnderDataFilePath)) return;
             processWinnerData();
         }, executorService);
     }
