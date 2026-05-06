@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 
 import net.minecraft.sound.SoundEvents;
 
+// TODO: Move saving, loading and clearing config from commands classes to this class as reusable methods 
+
 public class FileManager {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
