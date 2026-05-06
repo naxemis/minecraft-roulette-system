@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 
 import dev.naxemis.roulettepaymenthandler.client.models.PlayerDataHolder;
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
+import dev.naxemis.roulettepaymenthandler.client.utility.FileLoader;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
 
 import com.google.gson.Gson;
@@ -32,19 +33,17 @@ import java.util.concurrent.Executors;
 public class PaymentDataManager {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
+    private static final FileLoader fileLoader = new FileLoader();
 
     private static final Gson gson = new Gson(); // creates Gson instance used for JSON serialization and deserialization
-    private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
-    private static final Path paymentDataPath = Paths.get(filePath); // converts filePath string to a Path object
+    private static final String paymentDataFilePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
+    private static final Path paymentDataPath = Paths.get(paymentDataFilePath); // converts paymentDataFilePath string to a Path object
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2); // thread pool for database operations
 
     public void createEmptyDataFile() {
         try {
-            if (!Files.exists(paymentDataPath.getParent())) {
-                System.out.println("Creating directories for paymentData.json file.");
-                Files.createDirectories(paymentDataPath.getParent());
-            }
+            if (!fileLoader.checkForDataDirectory(paymentDataFilePath)) return;
 
             String defaultJson = "[]";
             Files.write(paymentDataPath, defaultJson.getBytes());
@@ -65,25 +64,18 @@ public class PaymentDataManager {
             PlayerDataHolder newPlayerData = new PlayerDataHolder(paymentUsername, paymentAmount); // hold new player's data
             List<PlayerDataHolder> listOfPlayerData = new ArrayList<>(); // holds all player's data
 
-            try { // created the directory if it's not existing
-                if(!Files.exists(paymentDataPath.getParent())) {
-                    System.out.println("Creating directories for paymentData.json file.");
-                    Files.createDirectories(paymentDataPath.getParent());
-                }
-            }
-            catch (IOException exception) {
-                System.out.println("Failed to create directories for paymentData.json file: " + exception.getMessage());
-            }
+            if(!fileLoader.checkForDataDirectory(paymentDataFilePath)) return;
 
+            // TODO (PAYMENT DATA MANAGER): Move into processPaymentData method
             if (Files.exists(paymentDataPath)) {
+
+                // TODO (PAYMENT DATA MANAGER): Move into readPaymentDataJson method
                 try (Reader fileReader = Files.newBufferedReader(paymentDataPath)) { // reads existing data
                     Type listType = new TypeToken<List<PlayerDataHolder>>(){}.getType(); // defines expected type od List<PlayerDataHolder>
                     listOfPlayerData = gson.fromJson(fileReader, listType); // deserialize JSON array into list of PlayerDataHolder objects
 
                     // if file was null, initialize an empty list to avoid NullPointerException
-                    if (listOfPlayerData == null) {
-                        listOfPlayerData = new ArrayList<>();
-                    }
+                    if (listOfPlayerData == null) listOfPlayerData = new ArrayList<>();
                 }
                 catch (IOException exception) {
                     System.out.println("Something went wrong reading existing data: " + exception.getMessage());
@@ -91,6 +83,7 @@ public class PaymentDataManager {
                     playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
                 }
 
+                // TODO (PAYMENT DATA MANAGER): Move into updatePaymentData method
                 boolean playerAlreadyExists = false;
                 for (int index = 0; index < listOfPlayerData.size(); index++) {
                     PlayerDataHolder player = listOfPlayerData.get(index);
@@ -106,12 +99,14 @@ public class PaymentDataManager {
                     }
                 }
 
+                // TODO (PAYMENT DATA MANAGER): Move into method above
                 if (!playerAlreadyExists) {
                     listOfPlayerData.add(newPlayerData); // adds new player data to list of player data
                 }
 
+                // TODO (PAYMENT DATA MANAGER): Move into writeUpdatedList method
                 // write the updated list back to the JSON file
-                try (FileWriter fileWriter = new FileWriter(filePath)) {
+                try (FileWriter fileWriter = new FileWriter(paymentDataFilePath)) {
                     gson.toJson(listOfPlayerData, fileWriter);
 
                     System.out.println("Succesfully saved payment data to JSON file");
