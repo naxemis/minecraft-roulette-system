@@ -92,9 +92,9 @@ public class SendMessageCommands {
                                     .then(literal("reload")
                                             .executes(context -> {
                                                 loadConfig();
-                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                if (client.player != null) {
-                                                    client.player.sendMessage(Text.literal("§aSendMessageAfterDraw config reloaded."), false);
+                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                if (minecraftClient.player != null) {
+                                                    minecraftClient.player.sendMessage(Text.literal("§aSendMessageAfterDraw config reloaded."), false);
                                                 }
                                                 return 1;
                                             })
@@ -102,12 +102,12 @@ public class SendMessageCommands {
                                     // Show info
                                     .then(literal("info")
                                             .executes(context -> {
-                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                if (client.player != null) {
-                                                    client.player.sendMessage(Text.literal("§6[---- Send Message After Draw Config ----]"), false);
-                                                    client.player.sendMessage(Text.literal("First Message: §a" + SendMessageAfterDraw.getMessageFirst()), false);
-                                                    client.player.sendMessage(Text.literal("Second Message: §a" + SendMessageAfterDraw.getMessageSecond()), false);
-                                                    client.player.sendMessage(Text.literal("Delay Ticks: §a" + SendMessageAfterDraw.getDelayTicks()), false);
+                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                if (minecraftClient.player != null) {
+                                                    minecraftClient.player.sendMessage(Text.literal("§6[---- Send Message After Draw Config ----]"), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("First Message: §a" + SendMessageAfterDraw.getMessageFirst()), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("Second Message: §a" + SendMessageAfterDraw.getMessageSecond()), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("Delay Ticks: §a" + SendMessageAfterDraw.getDelayTicks()), false);
                                                 }
                                                 return 1;
                                             })
@@ -120,9 +120,9 @@ public class SendMessageCommands {
                                                                 String value = StringArgumentType.getString(context, "message");
                                                                 SendMessageAfterDraw.setMessageFirst(value);
                                                                 saveConfig();
-                                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                                if (client.player != null) {
-                                                                    client.player.sendMessage(Text.literal("§aFirst message set to: " + value), false);
+                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                                if (minecraftClient.player != null) {
+                                                                    minecraftClient.player.sendMessage(Text.literal("§aFirst message set to: " + value), false);
                                                                 }
                                                                 return 1;
                                                             })
@@ -134,9 +134,9 @@ public class SendMessageCommands {
                                                                 String value = StringArgumentType.getString(context, "message");
                                                                 SendMessageAfterDraw.setMessageSecond(value);
                                                                 saveConfig();
-                                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                                if (client.player != null) {
-                                                                    client.player.sendMessage(Text.literal("§aSecond message set to: " + value), false);
+                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                                if (minecraftClient.player != null) {
+                                                                    minecraftClient.player.sendMessage(Text.literal("§aSecond message set to: " + value), false);
                                                                 }
                                                                 return 1;
                                                             })
@@ -148,9 +148,9 @@ public class SendMessageCommands {
                                                                 int ticks = IntegerArgumentType.getInteger(context, "ticks");
                                                                 SendMessageAfterDraw.setDelayTicks(ticks);
                                                                 saveConfig();
-                                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                                if (client.player != null) {
-                                                                    client.player.sendMessage(Text.literal("§aDelay ticks set to: " + ticks), false);
+                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                                if (minecraftClient.player != null) {
+                                                                    minecraftClient.player.sendMessage(Text.literal("§aDelay ticks set to: " + ticks), false);
                                                                 }
                                                                 return 1;
                                                             })
@@ -160,11 +160,11 @@ public class SendMessageCommands {
                                     // Test command
                                     .then(literal("test")
                                             .executes(context -> {
-                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                if (client.player != null) {
-                                                    client.player.sendMessage(Text.literal("§eTesting sending messages after a draw."), false);
-                                                    client.player.sendMessage(Text.literal("§eTest message is visible for other players."), false);
-                                                    client.player.sendMessage(Text.literal("§eMessage will be sent after " + SendMessageAfterDraw.getDelayTicks() + " ticks."), false);
+                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                if (minecraftClient.player != null) {
+                                                    minecraftClient.player.sendMessage(Text.literal("§eTesting sending messages after a draw."), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("§eTest message is visible for other players."), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("§eMessage will be sent after " + SendMessageAfterDraw.getDelayTicks() + " ticks."), false);
                                                 }
                                                 SendMessageAfterDraw.start();
 

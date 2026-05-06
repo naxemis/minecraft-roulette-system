@@ -22,7 +22,7 @@ public class PaymentDataCommands {
     private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
 
     private void clearData() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
         try (FileWriter fileWriter = new FileWriter(filePath)) {
             fileWriter.write("[]");
@@ -31,8 +31,8 @@ public class PaymentDataCommands {
             actionBarNotification.sendMessage("Payment data cleared.", "§a");
             playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
 
-            if (client != null && client.player != null) {
-                client.player.sendMessage(Text.literal("§aPayment data file cleared succesfully."), false);
+            if (minecraftClient != null && minecraftClient.player != null) {
+                minecraftClient.player.sendMessage(Text.literal("§aPayment data file cleared succesfully."), false);
             }
         }
         catch (IOException exception) {
@@ -41,8 +41,8 @@ public class PaymentDataCommands {
             actionBarNotification.sendMessage("Failed to clear payment data.", "§4");
             playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
 
-            if (client != null && client.player != null) {
-                client.player.sendMessage(Text.literal("§4Failed to clear payment data file."), false);
+            if (minecraftClient != null && minecraftClient.player != null) {
+                minecraftClient.player.sendMessage(Text.literal("§4Failed to clear payment data file."), false);
             }
         }
     }

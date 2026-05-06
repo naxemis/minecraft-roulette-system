@@ -100,7 +100,7 @@ public class PaymentCollectorCommands {
     }
 
     public void loadConfigFromJSON() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
         try {
             if (!Files.exists(paymentCollectorConfigFilePath.getParent())) {
@@ -131,8 +131,8 @@ public class PaymentCollectorCommands {
                 actionBarNotification.sendMessage("Created default config file.", "§e");
                 playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
 
-                if (client != null && client.player != null) {
-                    client.player.sendMessage(Text.literal("§ePayment collector config not found. Created config file with default values."), false);
+                if (minecraftClient != null && minecraftClient.player != null) {
+                    minecraftClient.player.sendMessage(Text.literal("§ePayment collector config not found. Created config file with default values."), false);
                 }
 
             } catch (IOException exception) {
@@ -141,8 +141,8 @@ public class PaymentCollectorCommands {
                 actionBarNotification.sendMessage("Failed to create default config file.", "§4");
                 playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
 
-                if (client != null && client.player != null) {
-                    client.player.sendMessage(Text.literal("§4Payment collector config not found. Failed to create config file with default values."), false);
+                if (minecraftClient != null && minecraftClient.player != null) {
+                    minecraftClient.player.sendMessage(Text.literal("§4Payment collector config not found. Failed to create config file with default values."), false);
                 }
             }
         }
@@ -169,8 +169,8 @@ public class PaymentCollectorCommands {
 
                 System.out.println("Successfully loaded payment collector config.");
 
-                if (client != null && client.player != null) {
-                    client.player.sendMessage(Text.literal("§aSuccessfully loaded payment collector config."), false);
+                if (minecraftClient != null && minecraftClient.player != null) {
+                    minecraftClient.player.sendMessage(Text.literal("§aSuccessfully loaded payment collector config."), false);
                 }
             }
         } catch (IOException exception) {
@@ -179,8 +179,8 @@ public class PaymentCollectorCommands {
             actionBarNotification.sendMessage("Failed to load payment collector config.", "§4");
             playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
 
-            if (client != null && client.player != null) {
-                client.player.sendMessage(Text.literal("§4Failed to load payment collector config."), false);
+            if (minecraftClient != null && minecraftClient.player != null) {
+                minecraftClient.player.sendMessage(Text.literal("§4Failed to load payment collector config."), false);
             }
         }
     }
@@ -203,14 +203,14 @@ public class PaymentCollectorCommands {
                                     )
                                     .then(literal("info")
                                             .executes(context -> {
-                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                if (client != null && client.player != null) {
-                                                    client.player.sendMessage(Text.literal("§6[---- Payment Collector Config Info ----]"), false);
-                                                    client.player.sendMessage(Text.literal("§7Specified component word: §a" + specifiedComponentWord), false);
-                                                    client.player.sendMessage(Text.literal("§7Position of specified word: §a" + positionOfSpecifiedWord), false);
-                                                    client.player.sendMessage(Text.literal("§7Position of amount: §a" + positionOfAmount), false);
-                                                    client.player.sendMessage(Text.literal("§7Position of username: §a" + positionOfUsername), false);
-                                                    client.player.sendMessage(Text.literal("§7Message components size: §a" + paymentMessageComponentSize), false);
+                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                if (minecraftClient != null && minecraftClient.player != null) {
+                                                    minecraftClient.player.sendMessage(Text.literal("§6[---- Payment Collector Config Info ----]"), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("§7Specified component word: §a" + specifiedComponentWord), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("§7Position of specified word: §a" + positionOfSpecifiedWord), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("§7Position of amount: §a" + positionOfAmount), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("§7Position of username: §a" + positionOfUsername), false);
+                                                    minecraftClient.player.sendMessage(Text.literal("§7Message components size: §a" + paymentMessageComponentSize), false);
                                                 }
                                                 return 1;
                                             })
@@ -221,14 +221,14 @@ public class PaymentCollectorCommands {
                                                     .then(argument("word", StringArgumentType.greedyString())
                                                             .executes(context -> {
                                                                 String newWord = StringArgumentType.getString(context, "word");
-                                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                                if (client != null && client.player != null) {
+                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                                if (minecraftClient != null && minecraftClient.player != null) {
                                                                     if (!specifiedComponentWord.equals(newWord)) {
                                                                         specifiedComponentWord = newWord;
                                                                         saveConfigToJSON();
-                                                                        client.player.sendMessage(Text.literal("§aSpecified word set to: " + specifiedComponentWord), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal("§aSpecified word set to: " + specifiedComponentWord), false);
                                                                     } else {
-                                                                        client.player.sendMessage(Text.literal(alreadyChangedText + specifiedComponentWord), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + specifiedComponentWord), false);
                                                                     }
                                                                 }
                                                                 return 1;
@@ -240,14 +240,14 @@ public class PaymentCollectorCommands {
                                                     .then(argument("position", IntegerArgumentType.integer())
                                                             .executes(context -> {
                                                                 int newPosition = IntegerArgumentType.getInteger(context, "position");
-                                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                                if (client != null && client.player != null) {
+                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                                if (minecraftClient != null && minecraftClient.player != null) {
                                                                     if (positionOfSpecifiedWord != newPosition) {
                                                                         positionOfSpecifiedWord = newPosition;
                                                                         saveConfigToJSON();
-                                                                        client.player.sendMessage(Text.literal("§aPosition of specified word set to: " + positionOfSpecifiedWord), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal("§aPosition of specified word set to: " + positionOfSpecifiedWord), false);
                                                                     } else {
-                                                                        client.player.sendMessage(Text.literal(alreadyChangedText + positionOfSpecifiedWord), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + positionOfSpecifiedWord), false);
                                                                     }
                                                                 }
                                                                 return 1;
@@ -259,14 +259,14 @@ public class PaymentCollectorCommands {
                                                     .then(argument("position", IntegerArgumentType.integer())
                                                             .executes(context -> {
                                                                 int newPosition = IntegerArgumentType.getInteger(context, "position");
-                                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                                if (client != null && client.player != null) {
+                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                                if (minecraftClient != null && minecraftClient.player != null) {
                                                                     if (positionOfAmount != newPosition) {
                                                                         positionOfAmount = newPosition;
                                                                         saveConfigToJSON();
-                                                                        client.player.sendMessage(Text.literal("§aPosition of payment amount set to: " + positionOfAmount), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal("§aPosition of payment amount set to: " + positionOfAmount), false);
                                                                     } else {
-                                                                        client.player.sendMessage(Text.literal(alreadyChangedText + positionOfAmount), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + positionOfAmount), false);
                                                                     }
                                                                 }
                                                                 return 1;
@@ -278,14 +278,14 @@ public class PaymentCollectorCommands {
                                                     .then(argument("position", IntegerArgumentType.integer())
                                                             .executes(context -> {
                                                                 int newPosition = IntegerArgumentType.getInteger(context, "position");
-                                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                                if (client != null && client.player != null) {
+                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                                if (minecraftClient != null && minecraftClient.player != null) {
                                                                     if (positionOfUsername != newPosition) {
                                                                         positionOfUsername = newPosition;
                                                                         saveConfigToJSON();
-                                                                        client.player.sendMessage(Text.literal("§aPosition of username set to: " + positionOfUsername), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal("§aPosition of username set to: " + positionOfUsername), false);
                                                                     } else {
-                                                                        client.player.sendMessage(Text.literal(alreadyChangedText + positionOfUsername), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + positionOfUsername), false);
                                                                     }
                                                                 }
                                                                 return 1;
@@ -297,14 +297,14 @@ public class PaymentCollectorCommands {
                                                     .then(argument("size", IntegerArgumentType.integer())
                                                             .executes(context -> {
                                                                 int newSize = IntegerArgumentType.getInteger(context, "size");
-                                                                MinecraftClient client = MinecraftClient.getInstance();
-                                                                if (client != null && client.player != null) {
+                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                                                                if (minecraftClient != null && minecraftClient.player != null) {
                                                                     if (paymentMessageComponentSize != newSize) {
                                                                         paymentMessageComponentSize = newSize;
                                                                         saveConfigToJSON();
-                                                                        client.player.sendMessage(Text.literal("§aSize of message component array set to: " + paymentMessageComponentSize), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal("§aSize of message component array set to: " + paymentMessageComponentSize), false);
                                                                     } else {
-                                                                        client.player.sendMessage(Text.literal(alreadyChangedText + paymentMessageComponentSize), false);
+                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + paymentMessageComponentSize), false);
                                                                     }
                                                                 }
                                                                 return 1;
