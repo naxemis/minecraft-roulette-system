@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 
 import net.minecraft.sound.SoundEvents;
 
-public class FileLoader {
+public class FileManager {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
 

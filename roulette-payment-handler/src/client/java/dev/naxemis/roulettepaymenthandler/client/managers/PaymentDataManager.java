@@ -7,7 +7,7 @@ import com.google.gson.reflect.TypeToken;
 
 import dev.naxemis.roulettepaymenthandler.client.models.PaymentDataHolder;
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
-import dev.naxemis.roulettepaymenthandler.client.utility.FileLoader;
+import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
 
 import com.google.gson.Gson;
@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
 public class PaymentDataManager {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
-    private static final FileLoader fileLoader = new FileLoader();
+    private static final FileManager fileManager = new FileManager();
 
     private static final Gson gson = new Gson(); // creates Gson instance used for JSON serialization and deserialization
     private static final String paymentDataFilePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
@@ -43,9 +43,9 @@ public class PaymentDataManager {
 
     public void createEmptyDataFile() {
         try {
-            if (!fileLoader.checkForDataDirectory(paymentDataFilePath)) return;
+            if (!fileManager.checkForDataDirectory(paymentDataFilePath)) return;
             String defaultJson = "[]";
-            if (!fileLoader.checkForDataJson(paymentDataFilePath, defaultJson)) return;
+            if (!fileManager.checkForDataJson(paymentDataFilePath, defaultJson)) return;
 
             Files.write(paymentDataPath, defaultJson.getBytes());
 

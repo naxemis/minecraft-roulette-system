@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 import dev.naxemis.roulettepaymenthandler.client.core.PaymentConfirmation;
 import dev.naxemis.roulettepaymenthandler.client.addon.SendMessageAfterDraw;
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
-import dev.naxemis.roulettepaymenthandler.client.utility.FileLoader;
+import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
 import dev.naxemis.roulettepaymenthandler.client.models.WinnerDataHolder;
 import net.minecraft.client.MinecraftClient;
@@ -25,7 +25,7 @@ public class WinnerDataManager {
 
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
-    private static final FileLoader fileLoader = new FileLoader();
+    private static final FileManager fileManager = new FileManager();
 
     private static WinnerDataHolder winnerData = new WinnerDataHolder("", 0);
 
@@ -89,8 +89,8 @@ public class WinnerDataManager {
 
     public CompletableFuture<Void> updateWinnerData() {
         return CompletableFuture.runAsync(() -> {
-            if (!fileLoader.checkForDataDirectory(winnderDataFilePath)) return;
-            if (!fileLoader.checkForDataJson(winnderDataFilePath, "")) return;
+            if (!fileManager.checkForDataDirectory(winnderDataFilePath)) return;
+            if (!fileManager.checkForDataJson(winnderDataFilePath, "")) return;
             processWinnerData();
         }, executorService);
     }
