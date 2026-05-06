@@ -11,7 +11,7 @@ import dev.naxemis.roulettepaymenthandler.client.commands.RouletteStatusCommands
 import dev.naxemis.roulettepaymenthandler.client.commands.SendMessageCommands;
 import dev.naxemis.roulettepaymenthandler.client.managers.PaymentDataManager;
 import dev.naxemis.roulettepaymenthandler.client.managers.WinnerDataManager;
-import dev.naxemis.roulettepaymenthandler.client.core.PaymentCollector;
+import dev.naxemis.roulettepaymenthandler.client.services.PaymentCollector;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;

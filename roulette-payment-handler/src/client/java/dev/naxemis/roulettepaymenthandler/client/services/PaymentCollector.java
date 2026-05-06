@@ -1,7 +1,7 @@
 // Copyright (c) 2026 naxemis. All rights reserved.
 // Contact: contact@naxemis.dev
 
-package dev.naxemis.roulettepaymenthandler.client.core;
+package dev.naxemis.roulettepaymenthandler.client.services;
 
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 

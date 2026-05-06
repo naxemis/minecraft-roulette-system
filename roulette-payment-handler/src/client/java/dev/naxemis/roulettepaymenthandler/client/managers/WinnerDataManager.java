@@ -5,12 +5,12 @@ package dev.naxemis.roulettepaymenthandler.client.managers;
 
 import com.google.gson.Gson;
 
-import dev.naxemis.roulettepaymenthandler.client.core.PaymentConfirmation;
 import dev.naxemis.roulettepaymenthandler.client.addon.SendMessageAfterDraw;
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
 import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
 import dev.naxemis.roulettepaymenthandler.client.models.WinnerDataHolder;
+import dev.naxemis.roulettepaymenthandler.client.services.PaymentConfirmation;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundEvents;
 
