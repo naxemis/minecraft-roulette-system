@@ -3,4 +3,4 @@
 
 package dev.naxemis.roulettepaymenthandler.client.models;
 
-public record PlayerDataHolder(String username, long amount) {}
+public record PaymentDataHolder(String username, long amount) {}

@@ -5,7 +5,7 @@ package dev.naxemis.roulettepaymenthandler.client.managers;
 
 import com.google.gson.reflect.TypeToken;
 
-import dev.naxemis.roulettepaymenthandler.client.models.PlayerDataHolder;
+import dev.naxemis.roulettepaymenthandler.client.models.PaymentDataHolder;
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
 import dev.naxemis.roulettepaymenthandler.client.utility.FileLoader;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
@@ -44,8 +44,9 @@ public class PaymentDataManager {
     public void createEmptyDataFile() {
         try {
             if (!fileLoader.checkForDataDirectory(paymentDataFilePath)) return;
-
             String defaultJson = "[]";
+            if (!fileLoader.checkForDataJson(paymentDataFilePath, defaultJson)) return;
+
             Files.write(paymentDataPath, defaultJson.getBytes());
 
             System.out.println("Created an empty paymentData.json file.");
@@ -58,66 +59,65 @@ public class PaymentDataManager {
         }
     }
 
-    public CompletableFuture<Void> saveData(String paymentUsername, long paymentAmount) {
+    private List<PaymentDataHolder> readPaymentDataJson() {
+        try (Reader fileReader = Files.newBufferedReader(paymentDataPath)) {
+            Type listType = new TypeToken<List<PaymentDataHolder>>(){}.getType();
+            List<PaymentDataHolder> list = gson.fromJson(fileReader, listType);
+            return list != null ? list : new ArrayList<>();
+        } catch (IOException exception) {
+            System.out.println("Something went wrong reading existing data: " + exception.getMessage());
+            actionBarNotification.sendMessage("Can't read data from JSON file.", "§4");
+            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+            return null;
+        }
+    }
+
+    private boolean checkPlayerAlreadyExists(PaymentDataHolder player, String paymentUsername) {
+        return player.username().equals(paymentUsername);
+    }
+
+    private void updatePaymentData(List<PaymentDataHolder> paymentDataList, PaymentDataHolder newPaymentData) {
+        for (int index = 0; index < paymentDataList.size(); index++) {
+            PaymentDataHolder player = paymentDataList.get(index);
+
+            if (checkPlayerAlreadyExists(player, newPaymentData.username())) {
+                long updatedAmount = player.amount() + newPaymentData.amount(); // updates payment amount
+                PaymentDataHolder updatedPlayer = new PaymentDataHolder(newPaymentData.username(), updatedAmount); // creates object with updates payment data
+                paymentDataList.set(index, updatedPlayer);
+                return;
+            }
+        }
+
+        paymentDataList.add(newPaymentData);
+    }
+
+    private void writeUpdatedList(List<PaymentDataHolder> paymentDataList) {
+        try (FileWriter fileWriter = new FileWriter(paymentDataFilePath)) {
+            gson.toJson(paymentDataList, fileWriter);
+            System.out.println("Succesfully saved payment data to JSON file");
+            actionBarNotification.sendMessage("Saved payment data to JSON file.", "§a");
+            playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
+        } catch (IOException exception) {
+            System.out.println("Something went wrong during saving data to JSON file: " + exception.getMessage());
+            actionBarNotification.sendMessage("Couldn't save payment data to JSON file.", "§4");
+            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+        }
+    }
+
+    private void processPaymentData(PaymentDataHolder newPaymentData) {
+            if (Files.exists(paymentDataPath)) {
+                List<PaymentDataHolder> paymentDataList = readPaymentDataJson();
+                if (paymentDataList == null) return;
+                updatePaymentData(paymentDataList, newPaymentData);
+                writeUpdatedList(paymentDataList);
+            }
+    }
+
+    public CompletableFuture<Void> saveData(PaymentDataHolder newPaymentData) {
 
         return CompletableFuture.runAsync(() -> { // runs the operation on background thread
-            PlayerDataHolder newPlayerData = new PlayerDataHolder(paymentUsername, paymentAmount); // hold new player's data
-            List<PlayerDataHolder> listOfPlayerData = new ArrayList<>(); // holds all player's data
-
-            if(!fileLoader.checkForDataDirectory(paymentDataFilePath)) return;
-
-            // TODO (PAYMENT DATA MANAGER): Move into processPaymentData method
-            if (Files.exists(paymentDataPath)) {
-
-                // TODO (PAYMENT DATA MANAGER): Move into readPaymentDataJson method
-                try (Reader fileReader = Files.newBufferedReader(paymentDataPath)) { // reads existing data
-                    Type listType = new TypeToken<List<PlayerDataHolder>>(){}.getType(); // defines expected type od List<PlayerDataHolder>
-                    listOfPlayerData = gson.fromJson(fileReader, listType); // deserialize JSON array into list of PlayerDataHolder objects
-
-                    // if file was null, initialize an empty list to avoid NullPointerException
-                    if (listOfPlayerData == null) listOfPlayerData = new ArrayList<>();
-                }
-                catch (IOException exception) {
-                    System.out.println("Something went wrong reading existing data: " + exception.getMessage());
-                    actionBarNotification.sendMessage("Can't read data from JSON file.", "§4");
-                    playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-                }
-
-                // TODO (PAYMENT DATA MANAGER): Move into updatePaymentData method
-                boolean playerAlreadyExists = false;
-                for (int index = 0; index < listOfPlayerData.size(); index++) {
-                    PlayerDataHolder player = listOfPlayerData.get(index);
-
-                    if (player.username().equals(paymentUsername)) {
-                        long updatedAmount = player.amount() + paymentAmount; // updates payment amount
-                        PlayerDataHolder updatedPlayer = new PlayerDataHolder(paymentUsername, updatedAmount); // creates object with updates payment data
-
-                        listOfPlayerData.set(index, updatedPlayer); // puts updated player data in the place of the old data
-
-                        playerAlreadyExists = true;
-                        break; // exits loop
-                    }
-                }
-
-                // TODO (PAYMENT DATA MANAGER): Move into method above
-                if (!playerAlreadyExists) {
-                    listOfPlayerData.add(newPlayerData); // adds new player data to list of player data
-                }
-
-                // TODO (PAYMENT DATA MANAGER): Move into writeUpdatedList method
-                // write the updated list back to the JSON file
-                try (FileWriter fileWriter = new FileWriter(paymentDataFilePath)) {
-                    gson.toJson(listOfPlayerData, fileWriter);
-
-                    System.out.println("Succesfully saved payment data to JSON file");
-                    actionBarNotification.sendMessage("Saved payment data to JSON file.", "§a");
-                    playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
-                } catch (IOException exception) {
-                    System.out.println("Something went wrong during saving data to JSON file: " + exception.getMessage());
-                    actionBarNotification.sendMessage("Couldn't save payment data to JSON file.", "§4");
-                    playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-                }
-            }
+            createEmptyDataFile();
+            processPaymentData(newPaymentData);
         }, executorService); // makes the method use dedicated thread pool for execution
     }
 

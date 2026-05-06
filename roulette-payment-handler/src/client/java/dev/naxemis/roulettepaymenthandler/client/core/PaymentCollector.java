@@ -42,6 +42,7 @@ public class PaymentCollector {
         }
     }
 
+    // TODO: User PaymentDataHolder instead of paymentUsername and paymentAmount
     public void registerListener(BiConsumer<String, Long> onPaymentReceived) {
         ClientReceiveMessageEvents.GAME.register((text, overlay) -> {
             List<Text> paymentComponents = new ArrayList<>();
