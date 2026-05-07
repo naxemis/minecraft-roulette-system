@@ -7,19 +7,19 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
+import dev.naxemis.roulettepaymenthandler.client.utility.ChatMessenger;
 import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class PaymentCollectorCommands {
     private static final FileManager fileManager = new FileManager();
+    private static final ChatMessenger chatMessenger = new ChatMessenger();
     private static final String filePath = FileManager.resolveDataPath("paymentCollectorConfig.json");
 
     private static int positionOfSpecifiedWord = 1; // where's located first word that player want to use for checking
@@ -86,21 +86,16 @@ public class PaymentCollectorCommands {
         if (json.has("paymentMessageComponentsSize"))
             paymentMessageComponentSize = json.get("paymentMessageComponentsSize").getAsInt();
 
-        MinecraftClient minecraftClient = MinecraftClient.getInstance();
-        if (minecraftClient != null && minecraftClient.player != null) {
-            if (firstRun) {
-                minecraftClient.player.sendMessage(Text.literal("§ePayment collector config not found. Created config file with default values."), false);
-            } else {
-                minecraftClient.player.sendMessage(Text.literal("§aSuccessfully loaded payment collector config."), false);
-            }
+        if (firstRun) {
+            chatMessenger.sendWarning("roulettepaymenthandler.collector.first_run");
+        } else {
+            chatMessenger.sendSuccess("roulettepaymenthandler.collector.loaded");
         }
     }
 
     // TODO (COLLECTOR COMMANDS): Move commands into different methods and execute them here.
     // I'm fr now. What the hell is this code. Did I wrote it on my lap or what?
     public void register() {
-        String alreadyChangedText = "§eValue is already changed to: ";
-
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(
                     literal("roulette")
@@ -108,122 +103,98 @@ public class PaymentCollectorCommands {
                                     .then(literal("reload")
                                             .executes(context -> {
                                                 loadConfigFromJSON();
-
                                                 return 1;
                                             })
                                     )
                                     .then(literal("info")
                                             .executes(context -> {
-                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                if (minecraftClient != null && minecraftClient.player != null) {
-                                                    minecraftClient.player.sendMessage(Text.literal("§6[---- Payment Collector Config Info ----]"), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("§7Specified component word: §a" + specifiedComponentWord), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("§7Position of specified word: §a" + positionOfSpecifiedWord), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("§7Position of amount: §a" + positionOfAmount), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("§7Position of username: §a" + positionOfUsername), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("§7Message components size: §a" + paymentMessageComponentSize), false);
-                                                }
+                                                chatMessenger.sendHeader("roulettepaymenthandler.collector.info.header");
+                                                chatMessenger.sendInfoRow("roulettepaymenthandler.collector.info.specified_component_word", specifiedComponentWord);
+                                                chatMessenger.sendInfoRow("roulettepaymenthandler.collector.info.position_of_specified_word", positionOfSpecifiedWord);
+                                                chatMessenger.sendInfoRow("roulettepaymenthandler.collector.info.position_of_amount", positionOfAmount);
+                                                chatMessenger.sendInfoRow("roulettepaymenthandler.collector.info.position_of_username", positionOfUsername);
+                                                chatMessenger.sendInfoRow("roulettepaymenthandler.collector.info.message_components_size", paymentMessageComponentSize);
                                                 return 1;
                                             })
                                     )
                                     .then(literal("set")
-                                            // specified component word
                                             .then(literal("specifiedcomponentword")
                                                     .then(argument("word", StringArgumentType.greedyString())
                                                             .executes(context -> {
                                                                 String newWord = StringArgumentType.getString(context, "word");
-                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                                if (minecraftClient != null && minecraftClient.player != null) {
-                                                                    if (!specifiedComponentWord.equals(newWord)) {
-                                                                        specifiedComponentWord = newWord;
-                                                                        saveConfigToJSON();
-                                                                        minecraftClient.player.sendMessage(Text.literal("§aSpecified word set to: " + specifiedComponentWord), false);
-                                                                    } else {
-                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + specifiedComponentWord), false);
-                                                                    }
+                                                                if (!specifiedComponentWord.equals(newWord)) {
+                                                                    specifiedComponentWord = newWord;
+                                                                    saveConfigToJSON();
+                                                                    chatMessenger.sendSuccess("roulettepaymenthandler.collector.set.specified_word", specifiedComponentWord);
+                                                                } else {
+                                                                    chatMessenger.sendWarning("roulettepaymenthandler.collector.already_changed", specifiedComponentWord);
                                                                 }
                                                                 return 1;
                                                             })
                                                     )
                                             )
-                                            // position of specified word
                                             .then(literal("positionofspecifiedword")
                                                     .then(argument("position", IntegerArgumentType.integer())
                                                             .executes(context -> {
                                                                 int newPosition = IntegerArgumentType.getInteger(context, "position");
-                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                                if (minecraftClient != null && minecraftClient.player != null) {
-                                                                    if (positionOfSpecifiedWord != newPosition) {
-                                                                        positionOfSpecifiedWord = newPosition;
-                                                                        saveConfigToJSON();
-                                                                        minecraftClient.player.sendMessage(Text.literal("§aPosition of specified word set to: " + positionOfSpecifiedWord), false);
-                                                                    } else {
-                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + positionOfSpecifiedWord), false);
-                                                                    }
+                                                                if (positionOfSpecifiedWord != newPosition) {
+                                                                    positionOfSpecifiedWord = newPosition;
+                                                                    saveConfigToJSON();
+                                                                    chatMessenger.sendSuccess("roulettepaymenthandler.collector.set.position_of_specified_word", positionOfSpecifiedWord);
+                                                                } else {
+                                                                    chatMessenger.sendWarning("roulettepaymenthandler.collector.already_changed", positionOfSpecifiedWord);
                                                                 }
                                                                 return 1;
                                                             })
                                                     )
                                             )
-                                            // position of amount
                                             .then(literal("positionofamount")
                                                     .then(argument("position", IntegerArgumentType.integer())
                                                             .executes(context -> {
                                                                 int newPosition = IntegerArgumentType.getInteger(context, "position");
-                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                                if (minecraftClient != null && minecraftClient.player != null) {
-                                                                    if (positionOfAmount != newPosition) {
-                                                                        positionOfAmount = newPosition;
-                                                                        saveConfigToJSON();
-                                                                        minecraftClient.player.sendMessage(Text.literal("§aPosition of payment amount set to: " + positionOfAmount), false);
-                                                                    } else {
-                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + positionOfAmount), false);
-                                                                    }
+                                                                if (positionOfAmount != newPosition) {
+                                                                    positionOfAmount = newPosition;
+                                                                    saveConfigToJSON();
+                                                                    chatMessenger.sendSuccess("roulettepaymenthandler.collector.set.position_of_amount", positionOfAmount);
+                                                                } else {
+                                                                    chatMessenger.sendWarning("roulettepaymenthandler.collector.already_changed", positionOfAmount);
                                                                 }
                                                                 return 1;
                                                             })
                                                     )
                                             )
-                                            // position of username
                                             .then(literal("positionofusername")
                                                     .then(argument("position", IntegerArgumentType.integer())
                                                             .executes(context -> {
                                                                 int newPosition = IntegerArgumentType.getInteger(context, "position");
-                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                                if (minecraftClient != null && minecraftClient.player != null) {
-                                                                    if (positionOfUsername != newPosition) {
-                                                                        positionOfUsername = newPosition;
-                                                                        saveConfigToJSON();
-                                                                        minecraftClient.player.sendMessage(Text.literal("§aPosition of username set to: " + positionOfUsername), false);
-                                                                    } else {
-                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + positionOfUsername), false);
-                                                                    }
+                                                                if (positionOfUsername != newPosition) {
+                                                                    positionOfUsername = newPosition;
+                                                                    saveConfigToJSON();
+                                                                    chatMessenger.sendSuccess("roulettepaymenthandler.collector.set.position_of_username", positionOfUsername);
+                                                                } else {
+                                                                    chatMessenger.sendWarning("roulettepaymenthandler.collector.already_changed", positionOfUsername);
                                                                 }
                                                                 return 1;
                                                             })
                                                     )
                                             )
-                                            // message component size
                                             .then(literal("messagecomponentsize")
                                                     .then(argument("size", IntegerArgumentType.integer())
                                                             .executes(context -> {
                                                                 int newSize = IntegerArgumentType.getInteger(context, "size");
-                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                                if (minecraftClient != null && minecraftClient.player != null) {
-                                                                    if (paymentMessageComponentSize != newSize) {
-                                                                        paymentMessageComponentSize = newSize;
-                                                                        saveConfigToJSON();
-                                                                        minecraftClient.player.sendMessage(Text.literal("§aSize of message component array set to: " + paymentMessageComponentSize), false);
-                                                                    } else {
-                                                                        minecraftClient.player.sendMessage(Text.literal(alreadyChangedText + paymentMessageComponentSize), false);
-                                                                    }
+                                                                if (paymentMessageComponentSize != newSize) {
+                                                                    paymentMessageComponentSize = newSize;
+                                                                    saveConfigToJSON();
+                                                                    chatMessenger.sendSuccess("roulettepaymenthandler.collector.set.message_components_size", paymentMessageComponentSize);
+                                                                } else {
+                                                                    chatMessenger.sendWarning("roulettepaymenthandler.collector.already_changed", paymentMessageComponentSize);
                                                                 }
                                                                 return 1;
                                                             })
                                                     )
                                             )
-                                        )
-                                )
+                                    )
+                            )
             );
         });
     }

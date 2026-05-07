@@ -8,10 +8,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
 import dev.naxemis.roulettepaymenthandler.client.services.SendMessageAfterDraw;
+import dev.naxemis.roulettepaymenthandler.client.utility.ChatMessenger;
 import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
@@ -19,6 +18,7 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.lit
 public class SendMessageCommands {
 
     private static final FileManager fileManager = new FileManager();
+    private static final ChatMessenger chatMessenger = new ChatMessenger();
     private static final String filePath = FileManager.resolveDataPath("sendMessageConfig.json");
 
     private JsonObject buildCurrentJson() {
@@ -51,31 +51,22 @@ public class SendMessageCommands {
             dispatcher.register(
                     literal("roulette")
                             .then(literal("sendmessage")
-                                    // Reload config
                                     .then(literal("reload")
                                             .executes(context -> {
                                                 loadConfig();
-                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                if (minecraftClient.player != null) {
-                                                    minecraftClient.player.sendMessage(Text.literal("§aSendMessageAfterDraw config reloaded."), false);
-                                                }
+                                                chatMessenger.sendSuccess("roulettepaymenthandler.send_message.reloaded");
                                                 return 1;
                                             })
                                     )
-                                    // Show info
                                     .then(literal("info")
                                             .executes(context -> {
-                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                if (minecraftClient.player != null) {
-                                                    minecraftClient.player.sendMessage(Text.literal("§6[---- Send Message After Draw Config ----]"), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("First Message: §a" + SendMessageAfterDraw.getMessageFirst()), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("Second Message: §a" + SendMessageAfterDraw.getMessageSecond()), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("Delay Ticks: §a" + SendMessageAfterDraw.getDelayTicks()), false);
-                                                }
+                                                chatMessenger.sendHeader("roulettepaymenthandler.send_message.info.header");
+                                                chatMessenger.sendInfoRow("roulettepaymenthandler.send_message.info.first_message", SendMessageAfterDraw.getMessageFirst());
+                                                chatMessenger.sendInfoRow("roulettepaymenthandler.send_message.info.second_message", SendMessageAfterDraw.getMessageSecond());
+                                                chatMessenger.sendInfoRow("roulettepaymenthandler.send_message.info.delay_ticks", SendMessageAfterDraw.getDelayTicks());
                                                 return 1;
                                             })
                                     )
-                                    // Set subcommands
                                     .then(literal("set")
                                             .then(literal("firstmessage")
                                                     .then(argument("message", StringArgumentType.greedyString())
@@ -83,10 +74,7 @@ public class SendMessageCommands {
                                                                 String value = StringArgumentType.getString(context, "message");
                                                                 SendMessageAfterDraw.setMessageFirst(value);
                                                                 saveConfig();
-                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                                if (minecraftClient.player != null) {
-                                                                    minecraftClient.player.sendMessage(Text.literal("§aFirst message set to: " + value), false);
-                                                                }
+                                                                chatMessenger.sendSuccess("roulettepaymenthandler.send_message.set.first_message", value);
                                                                 return 1;
                                                             })
                                                     )
@@ -97,10 +85,7 @@ public class SendMessageCommands {
                                                                 String value = StringArgumentType.getString(context, "message");
                                                                 SendMessageAfterDraw.setMessageSecond(value);
                                                                 saveConfig();
-                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                                if (minecraftClient.player != null) {
-                                                                    minecraftClient.player.sendMessage(Text.literal("§aSecond message set to: " + value), false);
-                                                                }
+                                                                chatMessenger.sendSuccess("roulettepaymenthandler.send_message.set.second_message", value);
                                                                 return 1;
                                                             })
                                                     )
@@ -111,26 +96,18 @@ public class SendMessageCommands {
                                                                 int ticks = IntegerArgumentType.getInteger(context, "ticks");
                                                                 SendMessageAfterDraw.setDelayTicks(ticks);
                                                                 saveConfig();
-                                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                                if (minecraftClient.player != null) {
-                                                                    minecraftClient.player.sendMessage(Text.literal("§aDelay ticks set to: " + ticks), false);
-                                                                }
+                                                                chatMessenger.sendSuccess("roulettepaymenthandler.send_message.set.delay_ticks", ticks);
                                                                 return 1;
                                                             })
                                                     )
                                             )
                                     )
-                                    // Test command
                                     .then(literal("test")
                                             .executes(context -> {
-                                                MinecraftClient minecraftClient = MinecraftClient.getInstance();
-                                                if (minecraftClient.player != null) {
-                                                    minecraftClient.player.sendMessage(Text.literal("§eTesting sending messages after a draw."), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("§eTest message is visible for other players."), false);
-                                                    minecraftClient.player.sendMessage(Text.literal("§eMessage will be sent after " + SendMessageAfterDraw.getDelayTicks() + " ticks."), false);
-                                                }
+                                                chatMessenger.sendWarning("roulettepaymenthandler.send_message.test.intro");
+                                                chatMessenger.sendWarning("roulettepaymenthandler.send_message.test.visibility");
+                                                chatMessenger.sendWarning("roulettepaymenthandler.send_message.test.delay", SendMessageAfterDraw.getDelayTicks());
                                                 SendMessageAfterDraw.start();
-
                                                 return 1;
                                             })
                                     )
