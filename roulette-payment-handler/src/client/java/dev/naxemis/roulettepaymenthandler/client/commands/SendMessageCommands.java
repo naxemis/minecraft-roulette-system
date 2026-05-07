@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
-import dev.naxemis.roulettepaymenthandler.client.addon.SendMessageAfterDraw;
+import dev.naxemis.roulettepaymenthandler.client.services.SendMessageAfterDraw;
 import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;

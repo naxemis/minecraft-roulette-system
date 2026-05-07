@@ -3,7 +3,6 @@
 
 package dev.naxemis.roulettepaymenthandler.client;
 
-import dev.naxemis.roulettepaymenthandler.client.addon.SendMessageAfterDraw;
 import dev.naxemis.roulettepaymenthandler.client.commands.HelpCommand;
 import dev.naxemis.roulettepaymenthandler.client.commands.PaymentCollectorCommands;
 import dev.naxemis.roulettepaymenthandler.client.commands.PaymentDataCommands;
@@ -12,6 +11,7 @@ import dev.naxemis.roulettepaymenthandler.client.commands.SendMessageCommands;
 import dev.naxemis.roulettepaymenthandler.client.managers.PaymentDataManager;
 import dev.naxemis.roulettepaymenthandler.client.managers.WinnerDataManager;
 import dev.naxemis.roulettepaymenthandler.client.services.PaymentCollector;
+import dev.naxemis.roulettepaymenthandler.client.services.SendMessageAfterDraw;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
