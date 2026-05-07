@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 
 public class PaymentCollectorCommands {
     private static final FileManager fileManager = new FileManager();
-    private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentCollectorConfig.json";
+    private static final String filePath = FileManager.resolveDataPath("paymentCollectorConfig.json");
 
     private static int positionOfSpecifiedWord = 1; // where's located first word that player want to use for checking
     private static String specifiedComponentWord = "Otrzymałeś:"; // the word that will be checked with payment message

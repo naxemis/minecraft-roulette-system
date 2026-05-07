@@ -36,7 +36,7 @@ public class PaymentDataManager {
     private static final FileManager fileManager = new FileManager();
 
     private static final Gson gson = new Gson(); // creates Gson instance used for JSON serialization and deserialization
-    private static final String paymentDataFilePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
+    private static final String paymentDataFilePath = FileManager.resolveDataPath("paymentData.json"); //file path to JSON file
     private static final Path paymentDataPath = Paths.get(paymentDataFilePath); // converts paymentDataFilePath string to a Path object
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2); // thread pool for database operations

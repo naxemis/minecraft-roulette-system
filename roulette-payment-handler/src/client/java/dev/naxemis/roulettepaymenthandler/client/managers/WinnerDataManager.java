@@ -29,8 +29,7 @@ public class WinnerDataManager {
 
     private static WinnerDataHolder winnerData = new WinnerDataHolder("", 0);
 
-    // TODO (SYSTEM): System.getenv("APPDATA") = null for Linux/Mac => "null/RoulettePaymentTracker/..."
-    private static final String winnderDataFilePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/winnerData.json";
+    private static final String winnderDataFilePath = FileManager.resolveDataPath("winnerData.json");
 
     private static final Gson gson = new Gson();
 

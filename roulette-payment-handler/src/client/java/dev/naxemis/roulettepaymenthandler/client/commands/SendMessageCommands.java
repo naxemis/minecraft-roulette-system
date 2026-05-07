@@ -19,7 +19,7 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.lit
 public class SendMessageCommands {
 
     private static final FileManager fileManager = new FileManager();
-    private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/sendMessageConfig.json";
+    private static final String filePath = FileManager.resolveDataPath("sendMessageConfig.json");
 
     private JsonObject buildCurrentJson() {
         JsonObject json = new JsonObject();

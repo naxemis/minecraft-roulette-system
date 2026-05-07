@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RouletteStatusCommands {
     private static final FileManager fileManager = new FileManager();
-    private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/rouletteStatus.json";
+    private static final String filePath = FileManager.resolveDataPath("rouletteStatus.json");
 
     private final AtomicBoolean rouletteStatus = new AtomicBoolean(false);
 

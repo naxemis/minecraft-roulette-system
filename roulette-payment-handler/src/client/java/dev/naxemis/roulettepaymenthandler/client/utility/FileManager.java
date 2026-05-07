@@ -10,12 +10,21 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.sound.SoundEvents;
 
 public class FileManager {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
     private static final Gson gson = new Gson();
+    private static final String DATA_DIRECTORY_NAME = "RoulettePaymentTracker";
+
+    public static String resolveDataPath(String fileName) {
+        return FabricLoader.getInstance().getConfigDir()
+                .resolve(DATA_DIRECTORY_NAME)
+                .resolve(fileName)
+                .toString();
+    }
 
     public boolean checkForDataDirectory(String filePath) {
         final Path dataFilePath = Paths.get(filePath);

@@ -13,13 +13,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
+import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
 
 public class PaymentDataCommands {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
 
-    private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
+    private static final String filePath = FileManager.resolveDataPath("paymentData.json"); //file path to JSON file
 
     private void clearData() {
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
