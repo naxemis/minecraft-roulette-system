@@ -62,12 +62,12 @@ public class FileManager {
         try (BufferedWriter fileWriter = Files.newBufferedWriter(dataFilePath, StandardCharsets.UTF_8)) {
             gson.toJson(jsonObject, fileWriter);
             System.out.println("Successfully saved " + fileName + ".");
-            actionBarNotification.sendMessage("Saved data to config.", "§a");
+            actionBarNotification.sendMessage("Saved " + fileName + ".", "§a");
             playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
             return true;
         } catch (IOException exception) {
             System.out.println("Failed to save " + fileName + ": " + exception.getMessage());
-            actionBarNotification.sendMessage("Failed to save data to config.", "§4");
+            actionBarNotification.sendMessage("Failed to save " + fileName + ".", "§4");
             playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             return false;
         }
@@ -88,7 +88,7 @@ public class FileManager {
             return loaded != null ? loaded : defaultJson;
         } catch (IOException exception) {
             System.out.println("Failed to load " + fileName + ": " + exception.getMessage());
-            actionBarNotification.sendMessage("Failed to load config.", "§4");
+            actionBarNotification.sendMessage("Failed to load " + fileName + ".", "§4");
             playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             return defaultJson;
         }

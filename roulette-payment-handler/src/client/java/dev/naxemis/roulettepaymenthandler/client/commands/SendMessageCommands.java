@@ -3,84 +3,47 @@
 
 package dev.naxemis.roulettepaymenthandler.client.commands;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
 import dev.naxemis.roulettepaymenthandler.client.addon.SendMessageAfterDraw;
-import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
-import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
+import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
-import net.minecraft.sound.SoundEvents;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public class SendMessageCommands {
 
-    private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
-    private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
-    private static final Gson gson = new Gson();
-
+    private static final FileManager fileManager = new FileManager();
     private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/sendMessageConfig.json";
-    private static final Path configPath = Paths.get(filePath);
+
+    private JsonObject buildCurrentJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("messageFirst", SendMessageAfterDraw.getMessageFirst());
+        json.addProperty("messageSecond", SendMessageAfterDraw.getMessageSecond());
+        json.addProperty("delayTicks", SendMessageAfterDraw.getDelayTicks());
+        return json;
+    }
 
     public void saveConfig() {
-        try {
-            if (!Files.exists(configPath.getParent())) {
-                Files.createDirectories(configPath.getParent());
-            }
-
-            JsonObject json = new JsonObject();
-            json.addProperty("messageFirst", SendMessageAfterDraw.getMessageFirst());
-            json.addProperty("messageSecond", SendMessageAfterDraw.getMessageSecond());
-            json.addProperty("delayTicks", SendMessageAfterDraw.getDelayTicks());
-
-            try (BufferedWriter writer = Files.newBufferedWriter(configPath, StandardCharsets.UTF_8)) {
-                gson.toJson(json, writer);
-            }
-
-            actionBarNotification.sendMessage("§aSendMessageAfterDraw config saved.", "§a");
-            playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
-
-        } catch (IOException e) {
-            actionBarNotification.sendMessage("§4Failed to save SendMessageAfterDraw config.", "§4");
-            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-            System.out.println("Failed to save sendMessageConfig.json: " + e.getMessage());
-        }
+        fileManager.saveJson(filePath, buildCurrentJson());
     }
 
     public void loadConfig() {
-        try {
-            if (!Files.exists(configPath)) return;
+        JsonObject json = fileManager.loadJson(filePath, buildCurrentJson());
 
-            String jsonString = Files.readString(configPath);
-            JsonObject json = gson.fromJson(jsonString, JsonObject.class);
+        if (json.has("messageFirst"))
+            SendMessageAfterDraw.setMessageFirst(json.get("messageFirst").getAsString());
 
-            if (json.has("messageFirst"))
-                SendMessageAfterDraw.setMessageFirst(json.get("messageFirst").getAsString());
+        if (json.has("messageSecond"))
+            SendMessageAfterDraw.setMessageSecond(json.get("messageSecond").getAsString());
 
-            if (json.has("messageSecond"))
-                SendMessageAfterDraw.setMessageSecond(json.get("messageSecond").getAsString());
-
-            if (json.has("delayTicks"))
-                SendMessageAfterDraw.setDelayTicks(json.get("delayTicks").getAsInt());
-
-        } catch (IOException exception) {
-            actionBarNotification.sendMessage("§4Failed to load SendMessageAfterDraw config.", "§4");
-            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-            System.out.println("Failed to load sendMessageConfig.json: " + exception.getMessage());
-        }
+        if (json.has("delayTicks"))
+            SendMessageAfterDraw.setDelayTicks(json.get("delayTicks").getAsInt());
     }
 
     public void register() {

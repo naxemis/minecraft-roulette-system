@@ -3,31 +3,24 @@
 
 package dev.naxemis.roulettepaymenthandler.client.commands;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
-import dev.naxemis.roulettepaymenthandler.client.utility.ActionBarNotification;
-import dev.naxemis.roulettepaymenthandler.client.utility.PlaySoundEffect;
+import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class PaymentCollectorCommands {
-    private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
-    private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
+    private static final FileManager fileManager = new FileManager();
+    private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentCollectorConfig.json";
 
     private static int positionOfSpecifiedWord = 1; // where's located first word that player want to use for checking
     private static String specifiedComponentWord = "Otrzymałeś:"; // the word that will be checked with payment message
@@ -50,137 +43,55 @@ public class PaymentCollectorCommands {
         return paymentMessageComponentSize;
     }
 
-    private static final Gson gson = new Gson();
-    private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentCollectorConfig.json";
-    private static final Path paymentCollectorConfigFilePath = Paths.get(filePath);
+    private JsonObject buildCurrentJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("positionOfSpecifiedWord", positionOfSpecifiedWord);
+        json.addProperty("specifiedComponentWord", specifiedComponentWord);
+        json.addProperty("positionOfAmount", positionOfAmount);
+        json.addProperty("positionOfUsername", positionOfUsername);
+        json.addProperty("paymentMessageComponentsSize", paymentMessageComponentSize);
+        return json;
+    }
+
+    private JsonObject buildDefaultJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("positionOfSpecifiedWord", 0);
+        json.addProperty("specifiedComponentWord", "");
+        json.addProperty("positionOfAmount", 0);
+        json.addProperty("positionOfUsername", 0);
+        json.addProperty("paymentMessageComponentsSize", 0);
+        return json;
+    }
 
     public void saveConfigToJSON() {
-        try { // created the directory if it's not existing
-            if (!Files.exists(paymentCollectorConfigFilePath.getParent())) {
-                System.out.println("Creating directories for paymentCollectorConfig.json file.");
-                Files.createDirectories(paymentCollectorConfigFilePath.getParent());
-                System.out.println("Created directories for paymentCollectorConfig.json file.");
-            }
-        }
-        catch (IOException exepction) {
-            System.err.println("Failed to create directories for paymentCollectorConfig.json file.: " + exepction.getMessage());
-        }
-
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("positionOfSpecifiedWord", positionOfSpecifiedWord);
-        jsonObject.addProperty("specifiedComponentWord", specifiedComponentWord);
-        jsonObject.addProperty("positionOfAmount", positionOfAmount);
-        jsonObject.addProperty("positionOfUsername", positionOfUsername);
-        jsonObject.addProperty("paymentMessageComponentsSize", paymentMessageComponentSize);
-        if (Files.exists(paymentCollectorConfigFilePath)) {
-            try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath, StandardCharsets.UTF_8)) {
-                gson.toJson(jsonObject, fileWriter);
-                System.out.println("Succesfully saved paymentCollectorConfig.json file.");
-                actionBarNotification.sendMessage("Saved data to config.", "§a");
-                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
-            } catch (IOException exception) {
-                System.out.println("Failed to save paymentCollectorConfig.json file: " + exception.getMessage());
-                actionBarNotification.sendMessage("Failed to save data to config.", "§a");
-                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-            }
-        }
-        else {
-            System.out.println("paymentCollectorConfig.json file not found.");
-            System.out.println("Creating paymentCollectorConfig.json file.");
-
-            try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath, StandardCharsets.UTF_8)) {
-                gson.toJson(jsonObject, fileWriter);
-                System.out.println("Succesfully created paymentCollectorConfig.json file.");
-            } catch (IOException exception) {
-                System.out.println("Failed to create paymentCollectorConfig.json file: " + exception.getMessage());
-                actionBarNotification.sendMessage("Failed to create paymentCollectorConfig.json.", "§4");
-                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-            }
-        }
+        fileManager.saveJson(filePath, buildCurrentJson());
     }
 
     public void loadConfigFromJSON() {
+        boolean firstRun = !Files.exists(Paths.get(filePath));
+        JsonObject json = fileManager.loadJson(filePath, buildDefaultJson());
+
+        if (json.has("positionOfSpecifiedWord"))
+            positionOfSpecifiedWord = json.get("positionOfSpecifiedWord").getAsInt();
+
+        if (json.has("specifiedComponentWord"))
+            specifiedComponentWord = json.get("specifiedComponentWord").getAsString();
+
+        if (json.has("positionOfAmount"))
+            positionOfAmount = json.get("positionOfAmount").getAsInt();
+
+        if (json.has("positionOfUsername"))
+            positionOfUsername = json.get("positionOfUsername").getAsInt();
+
+        if (json.has("paymentMessageComponentsSize"))
+            paymentMessageComponentSize = json.get("paymentMessageComponentsSize").getAsInt();
+
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
-
-        try {
-            if (!Files.exists(paymentCollectorConfigFilePath.getParent())) {
-                System.out.println("Creating directories for paymentCollectorConfig.json file.");
-                Files.createDirectories(paymentCollectorConfigFilePath.getParent());
-            }
-        }
-        catch (IOException exepction) {
-            System.err.println("Failed to create directories for paymentCollectorConfig.json file.: " + exepction.getMessage());
-        }
-
-        if (!Files.exists(paymentCollectorConfigFilePath)) {
-            System.out.println("paymentCollectorConfig.json file not found.");
-            System.out.println("Creating paymentCollectorConfig.json file with default values.");
-
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("positionOfSpecifiedWord", 0);
-            jsonObject.addProperty("specifiedComponentWord", "");
-            jsonObject.addProperty("positionOfAmount", 0);
-            jsonObject.addProperty("positionOfUsername", 0);
-            jsonObject.addProperty("paymentMessageComponentsSize", 0);
-
-            try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath)) {
-                gson.toJson(jsonObject, fileWriter);
-
-                System.out.println("Succesfully created paymentCollectorConfig.json file.");
-
-                actionBarNotification.sendMessage("Created default config file.", "§e");
-                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
-
-                if (minecraftClient != null && minecraftClient.player != null) {
-                    minecraftClient.player.sendMessage(Text.literal("§ePayment collector config not found. Created config file with default values."), false);
-                }
-
-            } catch (IOException exception) {
-                System.out.println("Failed to create paymentCollectorConfig.json file: " + exception.getMessage());
-
-                actionBarNotification.sendMessage("Failed to create default config file.", "§4");
-                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
-
-                if (minecraftClient != null && minecraftClient.player != null) {
-                    minecraftClient.player.sendMessage(Text.literal("§4Payment collector config not found. Failed to create config file with default values."), false);
-                }
-            }
-        }
-
-        try {
-            if (Files.exists(paymentCollectorConfigFilePath)) {
-                String jsonString = Files.readString(paymentCollectorConfigFilePath);
-                JsonObject json = gson.fromJson(jsonString, JsonObject.class);
-
-                if (json.has("positionOfSpecifiedWord"))
-                    positionOfSpecifiedWord = json.get("positionOfSpecifiedWord").getAsInt();
-
-                if (json.has("specifiedComponentWord"))
-                    specifiedComponentWord = json.get("specifiedComponentWord").getAsString();
-
-                if (json.has("positionOfAmount"))
-                    positionOfAmount = json.get("positionOfAmount").getAsInt();
-
-                if (json.has("positionOfUsername"))
-                    positionOfUsername = json.get("positionOfUsername").getAsInt();
-
-                if (json.has("paymentMessageComponentsSize"))
-                    paymentMessageComponentSize = json.get("paymentMessageComponentsSize").getAsInt();
-
-                System.out.println("Successfully loaded payment collector config.");
-
-                if (minecraftClient != null && minecraftClient.player != null) {
-                    minecraftClient.player.sendMessage(Text.literal("§aSuccessfully loaded payment collector config."), false);
-                }
-            }
-        } catch (IOException exception) {
-            System.err.println("Failed to load payment collector config: " + exception.getMessage());
-
-            actionBarNotification.sendMessage("Failed to load payment collector config.", "§4");
-            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-
-            if (minecraftClient != null && minecraftClient.player != null) {
-                minecraftClient.player.sendMessage(Text.literal("§4Failed to load payment collector config."), false);
+        if (minecraftClient != null && minecraftClient.player != null) {
+            if (firstRun) {
+                minecraftClient.player.sendMessage(Text.literal("§ePayment collector config not found. Created config file with default values."), false);
+            } else {
+                minecraftClient.player.sendMessage(Text.literal("§aSuccessfully loaded payment collector config."), false);
             }
         }
     }
@@ -317,5 +228,3 @@ public class PaymentCollectorCommands {
         });
     }
 }
-
-
