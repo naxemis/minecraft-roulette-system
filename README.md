@@ -6,13 +6,13 @@
 - Add support for YAML files
 =======
 ## TODO
-- [ ] Rename repository commits (use the same naming standard as in multiplayer-fps)
+- [ ] Rename old commit messages (use the same naming standard as in multiplayer-fps)
 - [x] Change project license from Creative Commons to All rights reserved
 - [x] Reorganize Minecraft mod project structure
 - [ ] Reorganize Elecrton app project structure
 - [ ] Switch from React to Vue in Electron app
 - [ ] Use TypeScript instead of JavaScript in Electron app
-- [ ] Improve readibility and maintainability of minecraft mod codebase
+- [x] Improve readibility and maintainability of minecraft mod codebase
 - [ ] Improve readibility and maintainability of desktop app codebase
 - [ ] Use WebSockets to communicate between mod and application and vice versa
 - [ ] Use database as a back-up way of communicaton between the programs
