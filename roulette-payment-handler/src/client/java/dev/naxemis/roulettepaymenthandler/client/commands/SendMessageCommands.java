@@ -6,11 +6,14 @@ package dev.naxemis.roulettepaymenthandler.client.commands;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 
 import dev.naxemis.roulettepaymenthandler.client.services.SendMessageAfterDraw;
 import dev.naxemis.roulettepaymenthandler.client.utility.ChatMessenger;
 import dev.naxemis.roulettepaymenthandler.client.utility.FileManager;
+
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
@@ -20,6 +23,8 @@ public class SendMessageCommands {
     private static final FileManager fileManager = new FileManager();
     private static final ChatMessenger chatMessenger = new ChatMessenger();
     private static final String filePath = FileManager.resolveDataPath("sendMessageConfig.json");
+
+    private static final String KEY_PREFIX = "roulettepaymenthandler.send_message.";
 
     private JsonObject buildCurrentJson() {
         JsonObject json = new JsonObject();
@@ -38,12 +43,56 @@ public class SendMessageCommands {
 
         if (json.has("messageFirst"))
             SendMessageAfterDraw.setMessageFirst(json.get("messageFirst").getAsString());
-
         if (json.has("messageSecond"))
             SendMessageAfterDraw.setMessageSecond(json.get("messageSecond").getAsString());
-
         if (json.has("delayTicks"))
             SendMessageAfterDraw.setDelayTicks(json.get("delayTicks").getAsInt());
+    }
+
+    private int reload(CommandContext<FabricClientCommandSource> context) {
+        loadConfig();
+        chatMessenger.sendSuccess(KEY_PREFIX + "reloaded");
+        return 1;
+    }
+
+    private int showInfo(CommandContext<FabricClientCommandSource> context) {
+        chatMessenger.sendHeader(KEY_PREFIX + "info.header");
+        chatMessenger.sendInfoRow(KEY_PREFIX + "info.first_message", SendMessageAfterDraw.getMessageFirst());
+        chatMessenger.sendInfoRow(KEY_PREFIX + "info.second_message", SendMessageAfterDraw.getMessageSecond());
+        chatMessenger.sendInfoRow(KEY_PREFIX + "info.delay_ticks", SendMessageAfterDraw.getDelayTicks());
+        return 1;
+    }
+
+    private int setFirstMessage(CommandContext<FabricClientCommandSource> context) {
+        String value = StringArgumentType.getString(context, "message");
+        SendMessageAfterDraw.setMessageFirst(value);
+        saveConfig();
+        chatMessenger.sendSuccess(KEY_PREFIX + "set.first_message", value);
+        return 1;
+    }
+
+    private int setSecondMessage(CommandContext<FabricClientCommandSource> context) {
+        String value = StringArgumentType.getString(context, "message");
+        SendMessageAfterDraw.setMessageSecond(value);
+        saveConfig();
+        chatMessenger.sendSuccess(KEY_PREFIX + "set.second_message", value);
+        return 1;
+    }
+
+    private int setDelayTicks(CommandContext<FabricClientCommandSource> context) {
+        int ticks = IntegerArgumentType.getInteger(context, "ticks");
+        SendMessageAfterDraw.setDelayTicks(ticks);
+        saveConfig();
+        chatMessenger.sendSuccess(KEY_PREFIX + "set.delay_ticks", ticks);
+        return 1;
+    }
+
+    private int test(CommandContext<FabricClientCommandSource> context) {
+        chatMessenger.sendWarning(KEY_PREFIX + "test.intro");
+        chatMessenger.sendWarning(KEY_PREFIX + "test.visibility");
+        chatMessenger.sendWarning(KEY_PREFIX + "test.delay", SendMessageAfterDraw.getDelayTicks());
+        SendMessageAfterDraw.start();
+        return 1;
     }
 
     public void register() {
@@ -51,66 +100,20 @@ public class SendMessageCommands {
             dispatcher.register(
                     literal("roulette")
                             .then(literal("sendmessage")
-                                    .then(literal("reload")
-                                            .executes(context -> {
-                                                loadConfig();
-                                                chatMessenger.sendSuccess("roulettepaymenthandler.send_message.reloaded");
-                                                return 1;
-                                            })
-                                    )
-                                    .then(literal("info")
-                                            .executes(context -> {
-                                                chatMessenger.sendHeader("roulettepaymenthandler.send_message.info.header");
-                                                chatMessenger.sendInfoRow("roulettepaymenthandler.send_message.info.first_message", SendMessageAfterDraw.getMessageFirst());
-                                                chatMessenger.sendInfoRow("roulettepaymenthandler.send_message.info.second_message", SendMessageAfterDraw.getMessageSecond());
-                                                chatMessenger.sendInfoRow("roulettepaymenthandler.send_message.info.delay_ticks", SendMessageAfterDraw.getDelayTicks());
-                                                return 1;
-                                            })
-                                    )
+                                    .then(literal("reload").executes(context -> reload(context)))
+                                    .then(literal("info").executes(context -> showInfo(context)))
                                     .then(literal("set")
                                             .then(literal("firstmessage")
                                                     .then(argument("message", StringArgumentType.greedyString())
-                                                            .executes(context -> {
-                                                                String value = StringArgumentType.getString(context, "message");
-                                                                SendMessageAfterDraw.setMessageFirst(value);
-                                                                saveConfig();
-                                                                chatMessenger.sendSuccess("roulettepaymenthandler.send_message.set.first_message", value);
-                                                                return 1;
-                                                            })
-                                                    )
-                                            )
+                                                            .executes(context -> setFirstMessage(context))))
                                             .then(literal("secondmessage")
                                                     .then(argument("message", StringArgumentType.greedyString())
-                                                            .executes(context -> {
-                                                                String value = StringArgumentType.getString(context, "message");
-                                                                SendMessageAfterDraw.setMessageSecond(value);
-                                                                saveConfig();
-                                                                chatMessenger.sendSuccess("roulettepaymenthandler.send_message.set.second_message", value);
-                                                                return 1;
-                                                            })
-                                                    )
-                                            )
+                                                            .executes(context -> setSecondMessage(context))))
                                             .then(literal("delayticks")
                                                     .then(argument("ticks", IntegerArgumentType.integer(1))
-                                                            .executes(context -> {
-                                                                int ticks = IntegerArgumentType.getInteger(context, "ticks");
-                                                                SendMessageAfterDraw.setDelayTicks(ticks);
-                                                                saveConfig();
-                                                                chatMessenger.sendSuccess("roulettepaymenthandler.send_message.set.delay_ticks", ticks);
-                                                                return 1;
-                                                            })
-                                                    )
-                                            )
+                                                            .executes(context -> setDelayTicks(context))))
                                     )
-                                    .then(literal("test")
-                                            .executes(context -> {
-                                                chatMessenger.sendWarning("roulettepaymenthandler.send_message.test.intro");
-                                                chatMessenger.sendWarning("roulettepaymenthandler.send_message.test.visibility");
-                                                chatMessenger.sendWarning("roulettepaymenthandler.send_message.test.delay", SendMessageAfterDraw.getDelayTicks());
-                                                SendMessageAfterDraw.start();
-                                                return 1;
-                                            })
-                                    )
+                                    .then(literal("test").executes(context -> test(context)))
                             )
             );
         });

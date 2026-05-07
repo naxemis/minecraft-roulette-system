@@ -5,9 +5,12 @@ package dev.naxemis.roulettepaymenthandler.client.commands;
 
 import java.util.List;
 
+import com.mojang.brigadier.context.CommandContext;
+
 import dev.naxemis.roulettepaymenthandler.client.utility.ChatMessenger;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 public class HelpCommand {
     private static final ChatMessenger chatMessenger = new ChatMessenger();
@@ -30,21 +33,27 @@ public class HelpCommand {
             "send_message_delay"
     );
 
+    public static void showFullHelp() {
+        chatMessenger.sendHeader("roulettepaymenthandler.help.header");
+        chatMessenger.sendSeparator();
+        for (String key : HELP_KEYS) {
+            chatMessenger.sendCommandHelp(
+                    KEY_PREFIX + key + ".command",
+                    KEY_PREFIX + key + ".description"
+            );
+        }
+    }
+
+    private int help(CommandContext<FabricClientCommandSource> context) {
+        showFullHelp();
+        return 1;
+    }
+
     public void register() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("roulette").then(
-                    ClientCommandManager.literal("help").executes(context -> {
-                        chatMessenger.sendHeader("roulettepaymenthandler.help.header");
-                        chatMessenger.sendSeparator();
-                        for (String key : HELP_KEYS) {
-                            chatMessenger.sendCommandHelp(
-                                    KEY_PREFIX + key + ".command",
-                                    KEY_PREFIX + key + ".description"
-                            );
-                        }
-                        return 1;
-                    })
-            ));
+            dispatcher.register(ClientCommandManager.literal("roulette")
+                    .then(ClientCommandManager.literal("help").executes(context -> help(context)))
+            );
         });
     }
 }
