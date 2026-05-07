@@ -89,7 +89,7 @@ public class WinnerDataManager {
     public CompletableFuture<Void> updateWinnerData() {
         return CompletableFuture.runAsync(() -> {
             if (!fileManager.checkForDataDirectory(winnderDataFilePath)) return;
-            if (!fileManager.checkForDataJson(winnderDataFilePath, "")) return;
+            if (!fileManager.checkForDataJson(winnderDataFilePath, "{}")) return;
             processWinnerData();
         }, executorService);
     }
