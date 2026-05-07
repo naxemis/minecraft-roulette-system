@@ -1,17 +1,21 @@
 package dev.naxemis.roulettepaymenthandler.client.utility;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import net.minecraft.sound.SoundEvents;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
-// TODO: Move saving, loading and clearing config from commands classes to this class as reusable methods 
+import net.minecraft.sound.SoundEvents;
 
 public class FileManager {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
+    private static final Gson gson = new Gson();
 
     public boolean checkForDataDirectory(String filePath) {
         final Path dataFilePath = Paths.get(filePath);
@@ -45,5 +49,52 @@ public class FileManager {
             playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             return false;
         }
+    }
+
+    public boolean saveJson(String filePath, JsonObject jsonObject) {
+        if (!checkForDataDirectory(filePath)) {
+            return false;
+        }
+
+        final Path dataFilePath = Paths.get(filePath);
+        final Path fileName = dataFilePath.getFileName();
+
+        try (BufferedWriter fileWriter = Files.newBufferedWriter(dataFilePath, StandardCharsets.UTF_8)) {
+            gson.toJson(jsonObject, fileWriter);
+            System.out.println("Successfully saved " + fileName + ".");
+            actionBarNotification.sendMessage("Saved data to config.", "§a");
+            playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
+            return true;
+        } catch (IOException exception) {
+            System.out.println("Failed to save " + fileName + ": " + exception.getMessage());
+            actionBarNotification.sendMessage("Failed to save data to config.", "§4");
+            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+            return false;
+        }
+    }
+
+    public JsonObject loadJson(String filePath, JsonObject defaultJson) {
+        if (!checkForDataDirectory(filePath) || !checkForDataJson(filePath, gson.toJson(defaultJson))) {
+            return defaultJson;
+        }
+
+        final Path dataFilePath = Paths.get(filePath);
+        final Path fileName = dataFilePath.getFileName();
+
+        try {
+            String jsonString = Files.readString(dataFilePath);
+            JsonObject loaded = gson.fromJson(jsonString, JsonObject.class);
+            System.out.println("Successfully loaded " + fileName + ".");
+            return loaded != null ? loaded : defaultJson;
+        } catch (IOException exception) {
+            System.out.println("Failed to load " + fileName + ": " + exception.getMessage());
+            actionBarNotification.sendMessage("Failed to load config.", "§4");
+            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+            return defaultJson;
+        }
+    }
+
+    public boolean clearJson(String filePath, JsonObject defaultJson) {
+        return saveJson(filePath, defaultJson);
     }
 }
