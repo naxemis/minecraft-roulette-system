@@ -66,6 +66,7 @@ public class WinnerDataManager {
     private void processWinnerData() {
         WinnerDataHolder parsed = readWinnerData();
         if (parsed == null || parsed.equals(winnerData)) return;
+        if (parsed.username() == null || parsed.username().isEmpty()) return;
 
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
         if (minecraftClient == null || minecraftClient.player == null) return;
@@ -89,7 +90,7 @@ public class WinnerDataManager {
     public CompletableFuture<Void> updateWinnerData() {
         return CompletableFuture.runAsync(() -> {
             if (!fileManager.checkForDataDirectory(winnderDataFilePath)) return;
-            if (!fileManager.checkForDataJson(winnderDataFilePath, "{}")) return;
+            if (!fileManager.checkForDataJson(winnderDataFilePath, "{\"username\":\"\",\"amount\":0}")) return;
             processWinnerData();
         }, executorService);
     }
