@@ -26,6 +26,8 @@
   "roulettepaymenthandler.help.entries.send_message_second.description": "Sets the second message that will be sent after a draw.",
   "roulettepaymenthandler.help.entries.send_message_delay.command": "/roulette sendmessage set delayticks <number>",
   "roulettepaymenthandler.help.entries.send_message_delay.description": "Sets the delay in ticks before sending the next message.",
+  "roulettepaymenthandler.help.entries.payment_data_clear.command": "/roulette paymentdata clear",
+  "roulettepaymenthandler.help.entries.payment_data_clear.description": "Clears the payment data file.",
 
   "roulettepaymenthandler.collector.info.header": "Payment Collector Config Info",
   "roulettepaymenthandler.collector.info.specified_component_word": "Specified component word",

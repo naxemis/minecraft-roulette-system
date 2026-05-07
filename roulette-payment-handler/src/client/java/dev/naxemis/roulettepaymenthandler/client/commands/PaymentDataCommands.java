@@ -55,6 +55,7 @@ public class PaymentDataCommands {
             dispatcher.register(
                     ClientCommandManager.literal("roulette")
                             .then(ClientCommandManager.literal("paymentdata")
+                                    .executes(context -> { HelpCommand.showSectionHelp("payment_data_"); return 1; })
                                     .then(ClientCommandManager.literal("clear").executes(context -> clear(context)))
                             )
             );

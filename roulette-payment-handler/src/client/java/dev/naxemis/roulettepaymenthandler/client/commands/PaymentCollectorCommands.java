@@ -165,9 +165,11 @@ public class PaymentCollectorCommands {
             dispatcher.register(
                     literal("roulette")
                             .then(literal("collectorconfig")
+                                    .executes(context -> { HelpCommand.showSectionHelp("collector_"); return 1; })
                                     .then(literal("reload").executes(context -> reload(context)))
                                     .then(literal("info").executes(context -> showInfo(context)))
                                     .then(literal("set")
+                                            .executes(context -> { HelpCommand.showSectionHelp("collector_"); return 1; })
                                             .then(literal("specifiedcomponentword")
                                                     .then(argument("word", StringArgumentType.greedyString())
                                                             .executes(context -> setSpecifiedWord(context))))

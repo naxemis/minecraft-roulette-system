@@ -61,6 +61,7 @@ public class RouletteStatusCommands {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(literal("roulette")
                     .then(literal("status")
+                            .executes(context -> { HelpCommand.showSectionHelp("status"); return 1; })
                             .then(literal("start").executes(context -> start(context)))
                             .then(literal("stop").executes(context -> stop(context)))
                     )

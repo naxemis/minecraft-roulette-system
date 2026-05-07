@@ -30,13 +30,19 @@ public class HelpCommand {
             "send_message_test",
             "send_message_first",
             "send_message_second",
-            "send_message_delay"
+            "send_message_delay",
+            "payment_data_clear"
     );
 
     public static void showFullHelp() {
+        showSectionHelp("");
+    }
+
+    public static void showSectionHelp(String keyPrefix) {
         chatMessenger.sendHeader("roulettepaymenthandler.help.header");
         chatMessenger.sendSeparator();
         for (String key : HELP_KEYS) {
+            if (!key.startsWith(keyPrefix)) continue;
             chatMessenger.sendCommandHelp(
                     KEY_PREFIX + key + ".command",
                     KEY_PREFIX + key + ".description"
@@ -52,6 +58,7 @@ public class HelpCommand {
     public void register() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("roulette")
+                    .executes(context -> help(context))
                     .then(ClientCommandManager.literal("help").executes(context -> help(context)))
             );
         });

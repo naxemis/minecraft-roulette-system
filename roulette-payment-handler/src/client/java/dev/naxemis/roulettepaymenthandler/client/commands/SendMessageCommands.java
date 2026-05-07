@@ -100,9 +100,11 @@ public class SendMessageCommands {
             dispatcher.register(
                     literal("roulette")
                             .then(literal("sendmessage")
+                                    .executes(context -> { HelpCommand.showSectionHelp("send_message_"); return 1; })
                                     .then(literal("reload").executes(context -> reload(context)))
                                     .then(literal("info").executes(context -> showInfo(context)))
                                     .then(literal("set")
+                                            .executes(context -> { HelpCommand.showSectionHelp("send_message_"); return 1; })
                                             .then(literal("firstmessage")
                                                     .then(argument("message", StringArgumentType.greedyString())
                                                             .executes(context -> setFirstMessage(context))))
