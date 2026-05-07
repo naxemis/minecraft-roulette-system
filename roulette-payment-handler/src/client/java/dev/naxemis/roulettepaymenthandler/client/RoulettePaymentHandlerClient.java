@@ -49,7 +49,7 @@ public class RoulettePaymentHandlerClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         paymentCollectorCommands.loadConfigFromJSON();
-        SendMessageAfterDraw.loadConfig();
+        sendMessageCommands.loadConfig();
 
         rouletteStatusCommands.register();
         paymentCollectorCommands.register();
