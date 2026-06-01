@@ -1,0 +1,20 @@
+# InteliJ
+out/
+.idea
+.idea_modules
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode
+!.vscode/extensions.json
+
+# GitHub
+.github
+
+# Log file
+*.log
+
+# System
+.DS_Store

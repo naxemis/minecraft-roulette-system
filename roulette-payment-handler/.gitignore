@@ -1,9 +1,6 @@
 # Compiled class file
 *.class
 
-# Log file
-*.log
-
 # BlueJ files
 *.ctxt
 
@@ -30,17 +27,6 @@ build/
 .gradletasknamecache
 gradle-app.setting
 !gradle-wrapper.jar
-
-# InteliJ #
-out/
-.idea/
-.idea_modules/
-*.iml
-*.ipr
-*.iws
-
-#VS Code
-.vscode/
 
 # Run #
 run/*
