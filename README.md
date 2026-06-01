@@ -1,1 +1,1 @@
-# Minecraft Roulette System (Fabric Mod + Electron App)
+# Minecraft Roulette System (Fabric Mod + Avalonia App)
