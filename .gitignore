@@ -18,3 +18,14 @@ out/
 
 # System
 .DS_Store
+**/.DS_Store
+
+# Gradle
+.gradle/
+build/
+
+# .NET / Avalonia
+bin/
+obj/
+*.suo
+.vs/
