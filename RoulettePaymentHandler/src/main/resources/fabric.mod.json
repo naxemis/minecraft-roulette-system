@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "roulettepaymenthandler",
+  "version": "${version}",
+
+  "name": "RoulettePaymentHandler",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "All-Rights-Reserved",
+  "icon": "assets/roulettepaymenthandler/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.naxemis.roulettepaymenthandler.client.RoulettePaymentHandlerClient"],
+    "main": ["dev.naxemis.roulettepaymenthandler.RoulettePaymentHandler"]
+  },
+
+  "mixins": [
+    "roulettepaymenthandler.mixins.json"
+    ,{
+      "config": "roulettepaymenthandler.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
